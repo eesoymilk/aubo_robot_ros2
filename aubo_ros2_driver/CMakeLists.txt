@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.12)
 project(aubo_ros2_driver)
 
 if(NOT CMAKE_C_STANDARD)

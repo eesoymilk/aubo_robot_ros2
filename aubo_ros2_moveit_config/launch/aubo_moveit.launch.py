@@ -191,17 +191,17 @@ def generate_launch_description():
     )
 
     # Warehouse mongodb server
-    mongodb_server_node = Node(
-        package="warehouse_ros_mongo",
-        executable="mongo_wrapper_ros.py",
-        parameters=[
-            {"warehouse_port": 33829},
-            {"warehouse_host": "localhost"},
-            {"warehouse_plugin": "warehouse_ros_mongo::MongoDatabaseConnection"},
-        ],
-        output="screen",
-        condition=IfCondition(db_config),
-    )
+    # mongodb_server_node = Node(
+    #     package="warehouse_ros_mongo",
+    #     executable="mongo_wrapper_ros.py",
+    #     parameters=[
+    #         {"warehouse_port": 33829},
+    #         {"warehouse_host": "localhost"},
+    #         {"warehouse_plugin": "warehouse_ros_mongo::MongoDatabaseConnection"},
+    #     ],
+    #     output="screen",
+    #     condition=IfCondition(db_config),
+    # )
 
     nodes = [
         aubo_driver_node,
@@ -209,7 +209,7 @@ def generate_launch_description():
         move_group_node,
         robot_state_publisher_node,
         rviz_node,
-        mongodb_server_node,
+        # mongodb_server_node,
     ]
 
     return LaunchDescription(declared_arguments + nodes)

@@ -4,20 +4,20 @@
 
 | **Supported OS**          | **Supported ROS2 distribution**                         |
 |---------------------------|---------------------------------------------------------|
-| Ubuntu 20.04              | [Foxy Fitzroy](https://docs.ros.org/en/foxy/index.html) |
+| Ubuntu 22.04              | [Humble](https://docs.ros.org/en/humble/index.html) |
 
 |**Recommend AUBO Teachpendant Version**    |**Recommend AUBO Hardware Version**  |
 |-------------------------------------------|-------------------------------------|
 |V4.5.48                                    |V3.4.38                              |
 
 ## Attention
-Due to the update of aubo, the execution efficiency of the robotServiceSetRobotPosData2Canbus(double jointAngle [aubo_robot_namespace: ARM-DOF]) API has decreased. The new version may cause the robotic arm to shake during trajectory execution. It is recommended to use the recommended version to run this project.
+Due to the update of aubo, the execution efficiency of the `robotServiceSetRobotPosData2Canbus(double jointAngle [aubo_robot_namespace: ARM-DOF])` API has decreased. The new version may cause the robotic arm to shake during trajectory execution. It is recommended to use the recommended version to run this project.
 
 ## Getting Started
 
-This project was developed for ROS2 Foxy on Ubuntu 20.04. Other versions of Ubuntu and ROS2 may work, but are not officially supported.
+This project was developed for ROS2 Humble on Ubuntu 22.04. Other versions of Ubuntu and ROS2 may work, but are not officially supported.
 
-1. Install [ROS2 Foxy via Debian Packages](https://docs.ros.org/en/foxy/Installation/Ubuntu-Install-Debians.html)
+1. Install [ROS2 Humble](https://docs.ros.org/en/humble/Installation/Ubuntu-Install-Debians.html)
 
 2. Install `colcon` and additional ROS packages:
 
@@ -26,18 +26,18 @@ This project was developed for ROS2 Foxy on Ubuntu 20.04. Other versions of Ubun
     python3-colcon-common-extensions \
     python3-rosdep2 \
     libeigen3-dev \
-    ros-foxy-xacro \
-    ros-foxy-tinyxml2-vendor \
-    ros-foxy-ros2-control \
-    ros-foxy-realtime-tools \
-    ros-foxy-control-toolbox \
-    ros-foxy-moveit \
-    ros-foxy-ros2-controllers \
-    ros-foxy-test-msgs \
-    ros-foxy-joint-state-publisher \
-    ros-foxy-joint-state-publisher-gui \
-    ros-foxy-robot-state-publisher \
-    ros-foxy-rviz2
+    ros-humble-xacro \
+    ros-humble-tinyxml2-vendor \
+    ros-humble-ros2-control \
+    ros-humble-realtime-tools \
+    ros-humble-control-toolbox \
+    ros-humble-moveit \
+    ros-humble-ros2-controllers \
+    ros-humble-test-msgs \
+    ros-humble-joint-state-publisher \
+    ros-humble-joint-state-publisher-gui \
+    ros-humble-robot-state-publisher \
+    ros-humble-rviz2
     ```
 
 3. Setup workspace:
@@ -45,7 +45,7 @@ This project was developed for ROS2 Foxy on Ubuntu 20.04. Other versions of Ubun
     ```bash
     mkdir -p ~/aubo_ros2_ws/src
     cd ~/aubo_ros2_ws/src
-    git clone https://github.com/XieShaosong/aubo_robot_ros2.git
+    git clone -b humble-devel https://github.com/XieShaosong/aubo_robot_ros2.git
     cd aubo_robot_ros2/
     ```
 
@@ -54,7 +54,7 @@ This project was developed for ROS2 Foxy on Ubuntu 20.04. Other versions of Ubun
     ```bash
     cd ~/aubo_ros2_ws
     rosdep update
-    rosdep install --from-paths src --ignore-src --rosdistro foxy -r -y
+    rosdep install --from-paths src --ignore-src --rosdistro humble -r -y
     ```
 
 5. Build and source the workspace:
@@ -69,7 +69,7 @@ This project was developed for ROS2 Foxy on Ubuntu 20.04. Other versions of Ubun
 **NOTE**: Remember to source the setup file and the workspace whenever a new terminal is opened:
 
 ```bash
-source /opt/ros/foxy/setup.bash
+source /opt/ros/humble/setup.bash
 source ~/aubo_ros2_ws/install/setup.bash
 ```
 

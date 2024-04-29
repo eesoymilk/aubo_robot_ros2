@@ -18,7 +18,7 @@
 #include <string>
 #include <thread>
 
-#include "aubo_ros2_common/threadSafeQueue.h"
+#include "threadSafeQueue.h"
 
 #include "AuboRobotMetaType.h"
 #include "serviceinterface.h"
@@ -30,7 +30,6 @@
 #include "aubo_ros2_metaType.h"
 
 #include "rclcpp/rclcpp.hpp"
-#include "rclcpp_action/rclcpp_action.hpp"
 #include <trajectory_msgs/msg/joint_trajectory.hpp>
 #include <trajectory_msgs/msg/joint_trajectory_point.hpp>
 #include <control_msgs/action/follow_joint_trajectory.hpp>

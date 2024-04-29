@@ -46,7 +46,7 @@ public:
     moveit::planning_interface::MoveGroupInterface::Plan plan;
     moveit::planning_interface::PlanningSceneInterface planning_scene_interface;
 
-    const moveit::core::JointModelGroup* joint_model_group = move_group.getCurrentState()->getJointModelGroup(PLANNING_GROUP );
+    const moveit::core::JointModelGroup* joint_model_group = move_group.getCurrentState()->getJointModelGroup(PLANNING_GROUP);
 
     move_group.setMaxAccelerationScalingFactor(1);
     move_group.setMaxVelocityScalingFactor(1);
@@ -90,7 +90,7 @@ private:
   rclcpp::Node::SharedPtr node_;
   rclcpp_action::Client<FollowJointTrajectory>::SharedPtr client_ptr_;
 
-  void goal_response_callback(std::shared_future<GoalHandleFjt::SharedPtr> future)
+  void goal_response_callback(GoalHandleFjt::SharedPtr future)
   {
     auto goal_handle = future.get();
     if (!goal_handle)
