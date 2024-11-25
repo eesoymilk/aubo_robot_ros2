@@ -1,2 +1,4 @@
-geometry_msgs/Pose target_pose
-geometry_msgs/Pose actual_pose
+aubo_ros2_common/Vector3 target_position
+aubo_ros2_common/Vector3 target_rotation
+aubo_ros2_common/Vector3 actual_position
+aubo_ros2_common/Vector3 actual_rotation

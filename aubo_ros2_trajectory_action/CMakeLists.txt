@@ -6,7 +6,7 @@ if(NOT CMAKE_C_STANDARD)
 endif()
 
 if(NOT CMAKE_CXX_STANDARD)
-  set(CMAKE_CXX_STANDARD 14)
+  set(CMAKE_CXX_STANDARD 17)
 endif()
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
@@ -18,11 +18,12 @@ find_package(rclcpp REQUIRED)
 find_package(rclcpp_action REQUIRED)
 find_package(control_msgs REQUIRED)
 find_package(trajectory_msgs REQUIRED)
+find_package(orocos_kdl REQUIRED)
 
-add_executable(aubo_ros2_trajectory_action src/aubo_ros2_trajectory_action.cpp src/main.cpp)
+add_executable(aubo_ros2_trajectory_action src/aubo_ros2_trajectory_action.cpp src/aubo_ros2_uniform_sample_filter.cpp src/main.cpp)
 ament_target_dependencies(aubo_ros2_trajectory_action
   rclcpp
-  rclcpp_action control_msgs trajectory_msgs)
+  rclcpp_action control_msgs trajectory_msgs orocos_kdl)
 
 target_include_directories(aubo_ros2_trajectory_action
   PRIVATE

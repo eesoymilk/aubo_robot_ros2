@@ -28,43 +28,41 @@ typedef rclcpp_action::ClientGoalHandle<FollowJointTrajectory> GoalHandleFjt;
 class DemoActionClient
 {
 public:
-  DemoActionClient(const rclcpp::Node::SharedPtr& node)
-  : node_(node)
+  DemoActionClient(const rclcpp::Node::SharedPtr &node)
+      : node_(node)
   {
     this->client_ptr_ = rclcpp_action::create_client<FollowJointTrajectory>(node_->get_node_base_interface(),
                                                                             node_->get_node_graph_interface(),
                                                                             node_->get_node_logging_interface(),
-                                                                            node_->get_node_waitables_interface(),"aubo_i5_controller/follow_joint_trajectory");
+                                                                            node_->get_node_waitables_interface(), "aubo_i5_controller/follow_joint_trajectory");
   }
 
   void planAndSendGoal()
   {
-    static const std::string  PLANNING_GROUP  = "manipulator_i5";
-    moveit::planning_interface::MoveGroupInterface move_group(node_, PLANNING_GROUP );
+    static const std::string PLANNING_GROUP = "manipulator_i5";
+    moveit::planning_interface::MoveGroupInterface move_group(node_, PLANNING_GROUP);
     move_group.setPoseReferenceFrame("base_link");
 
     moveit::planning_interface::MoveGroupInterface::Plan plan;
     moveit::planning_interface::PlanningSceneInterface planning_scene_interface;
 
-    const moveit::core::JointModelGroup* joint_model_group = move_group.getCurrentState()->getJointModelGroup(PLANNING_GROUP);
-
     move_group.setMaxAccelerationScalingFactor(1);
     move_group.setMaxVelocityScalingFactor(1);
 
     std::vector<double> zero_position;
-    zero_position.push_back(M_PI*(0.0)/180.0);
-    zero_position.push_back(M_PI*(0.0)/180.0);
-    zero_position.push_back(M_PI*(-90.0)/180.0);
-    zero_position.push_back(M_PI*(0.0)/180.0);
-    zero_position.push_back(M_PI*(-90.0)/180.0);
-    zero_position.push_back(M_PI*(0.0)/180.0);
+    zero_position.push_back(M_PI * (0.0) / 180.0);
+    zero_position.push_back(M_PI * (0.0) / 180.0);
+    zero_position.push_back(M_PI * (-90.0) / 180.0);
+    zero_position.push_back(M_PI * (0.0) / 180.0);
+    zero_position.push_back(M_PI * (-90.0) / 180.0);
+    zero_position.push_back(M_PI * (0.0) / 180.0);
     move_group.setJointValueTarget(zero_position);
     move_group.setPlannerId("RRTConnect");
 
     move_group.plan(plan);
 
     trajectory_msgs::msg::JointTrajectory trajectory;
-    trajectory = plan.trajectory_.joint_trajectory;
+    trajectory = plan.trajectory.joint_trajectory;
     control_msgs::action::FollowJointTrajectory_Goal goal;
     goal.trajectory = trajectory;
 

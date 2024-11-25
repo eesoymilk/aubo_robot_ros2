@@ -12,6 +12,7 @@ find_package(rosidl_default_generators REQUIRED)
 find_package(std_msgs REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
+  "msg/Vector3.msg"
   "msg/AuboJointStates.msg"
   "msg/AuboTcpPose.msg"
   "msg/AuboArmEvent.msg"

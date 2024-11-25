@@ -162,15 +162,27 @@ void JointTrajectoryAction::calculateMotionTrajectory()
 
   trajectory_msgs::msg::JointTrajectory remap_traj = remapTrajectoryByJointName(current_trajectory_);
 
+  current_trajectory_ = remap_traj;
+
+  trajectory_msgs::msg::JointTrajectory uniform_filter_traj;
+  UniformSampleFilter uniform_filter;
+  if (uniform_filter.update(remap_traj, uniform_filter_traj))
+  {
+    RCLCPP_INFO(this->get_logger(), "uniform filter trajectory: %ld time from start: %f", uniform_filter_traj.points.size(), toSec(uniform_filter_traj.points.back().time_from_start));
+    for (auto point : uniform_filter_traj.points)
+      moveit_controller_pub_->publish(point);
+    return;
+  }
+
   for(uint64_t i = 0; i < remap_traj.points.size(); i++)
   {
     trajectory_msgs::msg::JointTrajectoryPoint point = remap_traj.points[i];
     motion_buffer.push(point);
   }
 
-  RCLCPP_INFO(this->get_logger(), "trajectory: %ld time from start: %f", remap_traj.points.size(), toSec(remap_traj.points[remap_traj.points.size()-1].time_from_start));
+  RCLCPP_INFO(this->get_logger(), "trajectory: %ld time from start: %f", remap_traj.points.size(), toSec(remap_traj.points.back().time_from_start));
 
-  double move_duration, T, T2, T3, T4, T5, tt, ti, t1, t2, t3, t4, t5;
+  double T, T2, T3, T4, T5, tt, ti, t1, t2, t3, t4, t5;
   double a1[6], a2[6], a3[6], a4[6], a5[6], h[6];
 
   trajectory_msgs::msg::JointTrajectoryPoint last_goal_point, current_goal_point, intermediate_goal_point;
@@ -216,14 +228,13 @@ void JointTrajectoryAction::calculateMotionTrajectory()
         intermediate_goal_point.velocities[j] = a1[j] + 2 * a2[j] * t1 + 3 * a3[j] * t2 + 4 * a4[j] * t3 + 5 * a5[j] * t4;
         intermediate_goal_point.accelerations[j] = 2 * a2[j] + 6 * a3[j] * t1 + 12 * a4[j] * t2 + 20 * a5[j] * t3;
       }
-      tt += 1.0 / 200;
+      tt += DEFAULT_SAMPLE_DURATION;
 
       plan_motion_buffer.push(intermediate_goal_point);
 
       if (has_active_goal_)
         moveit_controller_pub_->publish(intermediate_goal_point);  
     }
-    move_duration = toSec(current_goal_point.time_from_start) - tt;
     plan_motion_buffer.push(current_goal_point);
     last_goal_point = current_goal_point;
     if (has_active_goal_)
@@ -257,7 +268,7 @@ bool JointTrajectoryAction::checkReachTarget(const control_msgs::action::FollowJ
   
   for (int i = 0; i < 6; i++)
   {
-    if(abs(feedback->actual.positions[i] - traj.points[last_point].positions[i]) > fabs(0.001))
+    if(abs(feedback->actual.positions[i] - traj.points[last_point].positions[i]) > fabs(0.002))
     {
       ret = false;
       break;

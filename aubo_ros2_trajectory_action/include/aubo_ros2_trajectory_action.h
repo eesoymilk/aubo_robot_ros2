@@ -28,8 +28,29 @@
 
 #include "std_msgs/msg/string.hpp"
 
+#include <kdl/velocityprofile_spline.hpp>
+
+const double DEFAULT_SAMPLE_DURATION = 0.005;
+
 namespace aubo_ros2_trajectory_action
 {
+
+// https://github.com/ros-industrial/industrial_core/blob/melodic-devel/industrial_trajectory_filters/include/industrial_trajectory_filters/uniform_sample_filter.h
+class UniformSampleFilter
+{
+public:
+  UniformSampleFilter();
+
+  void configure(const double &sample_duration);
+  bool update(const trajectory_msgs::msg::JointTrajectory &in, trajectory_msgs::msg::JointTrajectory &out);
+  bool interpolatePt(trajectory_msgs::msg::JointTrajectoryPoint &p1, trajectory_msgs::msg::JointTrajectoryPoint &p2, 
+                      double time_from_start, trajectory_msgs::msg::JointTrajectoryPoint &interp_pt);
+private:
+  double toSec(const builtin_interfaces::msg::Duration &duration);
+  builtin_interfaces::msg::Duration toDuration(double time_in_seconds);
+
+  double sample_duration_;
+};
 
 class JointTrajectoryAction : public rclcpp::Node
 {

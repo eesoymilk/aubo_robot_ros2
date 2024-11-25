@@ -20,26 +20,69 @@ void AuboRos2Driver::moveitControllerThread()
 {
   rclcpp::Rate loop_rate(UPDATE_RATE_);
 
+  int ret = 0;
+
   while (rclcpp::ok())
   {
-    if(moveit_controller_queue_.size() > 0 && !start_move_)
-      start_move_ = true;
-    
-    if (start_move_ && rib_buffer_size_ < MINIMUM_BUFFER_SIZE)
+    if(moveit_controller_queue_.size_approx() > 0 && !start_move_)
     {
-      if (moveit_controller_queue_.size() > 0)
+      rpc_cli->getRobotInterface(robot_name)->getMotionControl()->setServoMode(true);
+      int i = 0;
+      while (!rpc_cli->getRobotInterface(robot_name)->getMotionControl()->isServoModeEnabled() && i < 5)
       {
-        PlanningState ps;
-        moveit_controller_queue_.pop(ps);
-        robot_send_service_.robotServiceSetRobotPosData2Canbus(ps.joint_pos_);
+        std::this_thread::sleep_for(std::chrono::milliseconds(5));
+        i++;
+      }
+      if (rpc_cli->getRobotInterface(robot_name)->getMotionControl()->isServoModeEnabled())
+      {
+        start_move_ = true;
+        move_type_ = MoveType::Trajectory;
+      }
+    }
+    
+    if (start_move_ && move_type_ == MoveType::Trajectory)
+    {
+      if (moveit_controller_queue_.size_approx() > 0)
+      {
+        moveit_controller_queue_.try_dequeue(moveit_ps_);
+        std::vector<double> q;
+        for (int i = 0; i < 6; i++)
+        {
+          q.push_back(moveit_ps_.joint_pos_[i]);
+          target_joints_[i] = moveit_ps_.joint_pos_[i];
+        }
+        
+        ret = rpc_cli->getRobotInterface(robot_name)->getMotionControl()->servoJoint(q, 3, 3, 0.005, 0.1, 200);
+        
+        if (ret < 0)
+        {
+          RCLCPP_INFO(this->get_logger(), "servoJoint error ret: %d", ret);
+        }
       }
       else
-        start_move_ = false;
+      {
+        if (checkReachTarget())
+        {
+          RCLCPP_INFO(this->get_logger(), "reach target!");
+          start_move_ = false;
+          move_type_ = MoveType::Idel;
+        }
+        else
+        {
+          if(rpc_cli->getRobotInterface(robot_name)->getRobotState()->isSteady())
+          {
+            RCLCPP_INFO(this->get_logger(), "stopped! but not reach target");
+
+            start_move_ = false;
+            move_type_ = MoveType::Idel;
+          }
+
+        }
+      }
     }
 
     loop_rate.sleep();
   }
-  
 }
 
 bool AuboRos2Driver::checkReachTarget()
@@ -50,6 +93,20 @@ bool AuboRos2Driver::checkReachTarget()
     if(fabs(target_joints_[i] - actual_joints_[i]) > 0.001)
     {
       ret = false;
+      break;
+    }
+  }
+  return ret;
+}
+
+bool AuboRos2Driver::jointsCompare(double *joint1, double *joint2, double threshhold)
+{
+  bool ret = false;
+  for (int i = 0; i < ARM_DOF; i++)
+  {
+    if (fabs(joint1[i] - joint2[i]) >= threshhold)
+    {
+      ret = true;
       break;
     }
   }
