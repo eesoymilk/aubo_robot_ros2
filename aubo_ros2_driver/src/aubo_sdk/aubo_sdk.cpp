@@ -169,6 +169,7 @@ bool AuboRos2Driver::jointMove(std::vector<double> &target_joints, const double 
     std::this_thread::sleep_for(std::chrono::milliseconds(5));
   }
 
+  result = true;
   RCLCPP_INFO(this->get_logger(), "move joint success");
   return result;
 }

@@ -30,7 +30,7 @@
 
 #include <kdl/velocityprofile_spline.hpp>
 
-const double DEFAULT_SAMPLE_DURATION = 0.005;
+const double DEFAULT_SAMPLE_DURATION = 0.01;
 
 namespace aubo_ros2_trajectory_action
 {

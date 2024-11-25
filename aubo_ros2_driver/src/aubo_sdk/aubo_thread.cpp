@@ -52,7 +52,7 @@ void AuboRos2Driver::moveitControllerThread()
           target_joints_[i] = moveit_ps_.joint_pos_[i];
         }
         
-        ret = rpc_cli->getRobotInterface(robot_name)->getMotionControl()->servoJoint(q, 3, 3, 0.005, 0.1, 200);
+        ret = rpc_cli->getRobotInterface(robot_name)->getMotionControl()->servoJoint(q, 3, 3, 0.01, 0.1, 200);
         
         if (ret < 0)
         {

@@ -329,12 +329,12 @@ void AuboRos2Driver::armControlServiceCallback(const std::shared_ptr<aubo_ros2_c
   if (ret == AuboErrorCodes::AUBO_OK)
   {
     response->result = true;
-    response->result_code = ret;
+    response->result_code = to_string(ret);
   }
   else
   {
     response->result = false;
-    response->result_code = ret;
+    response->result_code = to_string(ret);
   }
 }
 

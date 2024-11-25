@@ -20,7 +20,7 @@
 const int ARM_DOF = 6;
 const double MAX_JOINT_ACC = 15.0/180.0*M_PI;
 const double MAX_JOINT_VEL = 10.0/180.0*M_PI;
-const int UPDATE_RATE_ = 200;
+const int UPDATE_RATE_ = 100;
 const std::string joint_name_[ARM_DOF] = {"shoulder_joint","upperArm_joint","foreArm_joint","wrist1_joint","wrist2_joint","wrist3_joint"};
 
 namespace aubo_ros2_driver
