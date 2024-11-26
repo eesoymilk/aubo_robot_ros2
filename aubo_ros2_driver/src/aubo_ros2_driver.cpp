@@ -103,11 +103,11 @@ void AuboRos2Driver::intervalStatesCallback()
   else
     protective_stopped = false;
 
-  if (protective_stopped && (robot_msg_[0].code == 30014 || robot_msg_[0].code== 10022))
+  if (protective_stopped && (robot_msg_[0].code == 30014 || robot_msg_[0].code == 10022))
     collision_stopped = true;
   else
     collision_stopped = false;
-  
+
   if (safety_mode_ == SafetyModeType::RobotEmergencyStop || safety_mode_ == SafetyModeType::SystemEmergencyStop)
     emergency_stopped = true;
   else
@@ -116,7 +116,7 @@ void AuboRos2Driver::intervalStatesCallback()
   aubo_ros2_common::msg::AuboArmStates arm_states;
   arm_states.move_type = move_type_;
   arm_states.collision_level = collision_level_;
-  arm_states.arm_power_status = robot_mode_ == RobotModeType::Running?1:0;
+  arm_states.arm_power_status = robot_mode_ == RobotModeType::Running ? 1 : 0;
   arm_states.collision_stopped = collision_stopped;
   arm_states.emergency_stopped = emergency_stopped;
   arm_states.singularity_stopped = false;
@@ -126,7 +126,9 @@ void AuboRos2Driver::intervalStatesCallback()
 
   if (arm_states.emergency_stopped || arm_states.collision_stopped || arm_states.protective_stopped)
   {
-    handleArmStopped();
+    RCLCPP_INFO_ONCE(this->get_logger(), "emergency: %d, collsioin: %d, protective: %d stopped", emergency_stopped, collision_stopped, protective_stopped);
+    if (move_type_ != MoveType::Idel)
+      handleArmStopped();
   }
 
   // pub sensor joint states
@@ -205,6 +207,10 @@ void AuboRos2Driver::robotControlCallback(const std_msgs::msg::String::ConstShar
     {
       RCLCPP_INFO(this->get_logger(), "poweroff failed");
     }
+  }
+  else if (msg->data == "stop")
+  {
+    handleArmStopped();
   }
 }
 

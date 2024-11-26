@@ -21,10 +21,11 @@ void AuboRos2Driver::moveitControllerThread()
   rclcpp::Rate loop_rate(UPDATE_RATE_);
 
   int ret = 0;
+  servo_joint_state_ = ServoJointState::Waiting;
 
   while (rclcpp::ok())
   {
-    if(moveit_controller_queue_.size_approx() > 0 && !start_move_)
+    if (moveit_controller_queue_.size_approx() > 0 && !start_move_)
     {
       rpc_cli->getRobotInterface(robot_name)->getMotionControl()->setServoMode(true);
       int i = 0;
@@ -37,46 +38,61 @@ void AuboRos2Driver::moveitControllerThread()
       {
         start_move_ = true;
         move_type_ = MoveType::Trajectory;
+        servo_joint_state_ = ServoJointState::Sending;
       }
     }
-    
+
     if (start_move_ && move_type_ == MoveType::Trajectory)
     {
-      if (moveit_controller_queue_.size_approx() > 0)
+      if (servo_joint_state_ == ServoJointState::ServoJointError || servo_joint_state_ == ServoJointState::UserStopped)
       {
-        moveit_controller_queue_.try_dequeue(moveit_ps_);
-        std::vector<double> q;
-        for (int i = 0; i < 6; i++)
-        {
-          q.push_back(moveit_ps_.joint_pos_[i]);
-          target_joints_[i] = moveit_ps_.joint_pos_[i];
-        }
-        
-        ret = rpc_cli->getRobotInterface(robot_name)->getMotionControl()->servoJoint(q, 3, 3, 0.01, 0.1, 200);
-        
-        if (ret < 0)
-        {
-          RCLCPP_INFO(this->get_logger(), "servoJoint error ret: %d", ret);
-        }
+        RCLCPP_INFO(this->get_logger(), "servoJoint stopped: %d", servo_joint_state_);
+
+        std::vector<double> q = {};
+        rpc_cli->getRobotInterface(robot_name)->getMotionControl()->servoJoint(q, 3, 3, 0.01, 0.1, 200);
+
+        servo_joint_state_ = ServoJointState::Waiting;
       }
-      else
+      else if (servo_joint_state_ == ServoJointState::Sending)
       {
-        if (checkReachTarget())
+        if (moveit_controller_queue_.size_approx() > 0)
         {
-          RCLCPP_INFO(this->get_logger(), "reach target!");
-          start_move_ = false;
-          move_type_ = MoveType::Idel;
+          moveit_controller_queue_.try_dequeue(moveit_ps_);
+          std::vector<double> q;
+          for (int i = 0; i < 6; i++)
+          {
+            q.push_back(moveit_ps_.joint_pos_[i]);
+            target_joints_[i] = moveit_ps_.joint_pos_[i];
+          }
+
+          ret = rpc_cli->getRobotInterface(robot_name)->getMotionControl()->servoJoint(q, 3, 3, 0.01, 0.1, 200);
+
+          if (ret < 0)
+          {
+            RCLCPP_INFO(this->get_logger(), "servoJoint error ret: %d", ret);
+            servo_joint_state_ = ServoJointState::ServoJointError;
+          }
         }
         else
         {
-          if(rpc_cli->getRobotInterface(robot_name)->getRobotState()->isSteady())
+          if (checkReachTarget())
           {
-            RCLCPP_INFO(this->get_logger(), "stopped! but not reach target");
-
+            RCLCPP_INFO(this->get_logger(), "reach target!");
             start_move_ = false;
             move_type_ = MoveType::Idel;
+            servo_joint_state_ = ServoJointState::Waiting;
           }
+          else
+          {
+            if (rpc_cli->getRobotInterface(robot_name)->getRobotState()->isSteady())
+            {
+              RCLCPP_INFO(this->get_logger(), "stopped! but not reach target");
 
+              start_move_ = false;
+              move_type_ = MoveType::Idel;
+              servo_joint_state_ = ServoJointState::Waiting;
+            }
+          }
         }
       }
     }

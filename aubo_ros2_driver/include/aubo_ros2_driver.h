@@ -138,12 +138,11 @@ private:
   bool start_move_;
   int move_type_;
 
+  int servo_joint_state_;
   PlanningState moveit_ps_;
   moodycamel::ReaderWriterQueue<PlanningState> moveit_controller_queue_;
 
   std::thread *moveit_controller_thread_;
-
-  ArmStopped arm_stopped_;
 
   PlanningState last_recieve_ps;
 };

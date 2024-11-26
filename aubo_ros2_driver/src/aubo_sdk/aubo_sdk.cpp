@@ -174,24 +174,32 @@ bool AuboRos2Driver::jointMove(std::vector<double> &target_joints, const double 
   return result;
 }
 
- void AuboRos2Driver::handleArmStopped()
- {
-  if(moveit_controller_queue_.size_approx() > 0)
+void AuboRos2Driver::handleArmStopped()
+{
+  if (move_type_ == MoveType::Trajectory)
   {
-    std_msgs::msg::String msg;
-    msg.data = "stop";
-    moveit_execution_pub_->publish(msg);
+    if (moveit_controller_queue_.size_approx() > 0)
+    {
+      servo_joint_state_ = ServoJointState::UserStopped;
+
+      std_msgs::msg::String msg;
+      msg.data = "stop";
+      moveit_execution_pub_->publish(msg);
+
+      //rpc_cli->getRobotInterface(robot_name)->getMotionControl()->setServoMode(false);
+
+      while (moveit_controller_queue_.size_approx() > 0)
+      {
+        moveit_controller_queue_.pop();
+      }
+    }
 
     rpc_cli->getRobotInterface(robot_name)->getMotionControl()->setServoMode(false);
-
-    while (moveit_controller_queue_.size_approx() > 0)
-    {
-      moveit_controller_queue_.pop();
-    }
   }
-
-  if (move_type_ ==  MoveType::MoveJ)
+  else if (move_type_ == MoveType::MoveJ)
     rpc_cli->getRobotInterface(robot_name)->getMotionControl()->stopJoint(MAX_JOINT_ACC);
+  else
+    RCLCPP_INFO(this->get_logger(), "idle");
 
   start_move_ = false;
   move_type_ = MoveType::Idel;

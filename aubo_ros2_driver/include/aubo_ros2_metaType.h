@@ -40,13 +40,12 @@ namespace aubo_ros2_driver
     Trajectory = 3
   };
 
-  struct ArmStopped
+  enum ServoJointState
   {
-    bool user_stopped;
-    bool collision_stopped;
-    bool emergency_stopped;
-    bool protective_stopped;
-    bool singularity_stopped;
+    Waiting = 10,
+    Sending = 11,
+    ServoJointError = 12,
+    UserStopped = 13
   };
 }
 
