@@ -32,6 +32,10 @@ bool AuboRos2Driver::connectArmController()
     server_host = "192.168.29.2";
   }
 
+  int server_port = 8899;
+  this->get_parameter("robot_port", server_port);
+  RCLCPP_INFO(this->get_logger(), "robot port: %d", server_port);
+
   // login
   rpc_cli = std::make_shared<RpcClient>();
   rpc_cli->setRequestTimeout(1000);
@@ -41,7 +45,7 @@ bool AuboRos2Driver::connectArmController()
   do
   {
     count++;
-    ret = rpc_cli->connect(server_host, 30004);
+    ret = rpc_cli->connect(server_host, server_port);
   } while (ret != AuboErrorCodes::AUBO_OK && count < max_link_times);
 
   if (ret == AuboErrorCodes::AUBO_OK)

@@ -23,6 +23,7 @@ AuboRos2Driver::AuboRos2Driver():Node("aubo_ros2_driver")
 
   using namespace std::placeholders;
   this->declare_parameter<std::string>("robot_ip", "127.0.0.1");
+  this->declare_parameter<int>("robot_port", 8899);
 
   joint_states_pub_ = this->create_publisher<aubo_ros2_common::msg::AuboJointStates>("/aubo_robot/joint_states", 10);
   tcp_pose_pub_ = this->create_publisher<aubo_ros2_common::msg::AuboTcpPose>("/aubo_robot/tcp_pose", 10);

@@ -47,6 +47,14 @@ def generate_launch_description():
 
     declared_arguments.append(
         DeclareLaunchArgument(
+            "robot_port",
+            default_value="8899",
+            description="RPC port of the robot server.",
+        )
+    )
+
+    declared_arguments.append(
+        DeclareLaunchArgument(
             "db",
             default_value="false",
             description="Database flag",
@@ -54,6 +62,7 @@ def generate_launch_description():
     )
 
     robot_ip = LaunchConfiguration("robot_ip")
+    robot_port = LaunchConfiguration("robot_port")
     db_config = LaunchConfiguration("db")
 
     joint_names_yaml = {
@@ -122,7 +131,7 @@ def generate_launch_description():
         package="aubo_ros2_driver",
         executable="aubo_ros2_driver",
         output="screen",
-        parameters=[{"robot_ip": robot_ip}],
+        parameters=[{"robot_ip": robot_ip, "robot_port": robot_port}],
     )
 
     # Publish TF
