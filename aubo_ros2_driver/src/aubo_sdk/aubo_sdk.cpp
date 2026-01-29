@@ -50,7 +50,7 @@ bool AuboRos2Driver::connectArmController()
 
   if (ret == AuboErrorCodes::AUBO_OK)
   {
-    rpc_cli->login("aubo", "123456");
+    rpc_cli->login("admin", "123456");
     rpc_cli->setEventHandler([this](int event)
                              { RCLCPP_INFO(this->get_logger(), "aubo rpc event id: %d", event); });
     robot_name = rpc_cli->getRobotNames().front();
@@ -61,7 +61,7 @@ bool AuboRos2Driver::connectArmController()
 
     rtde_cli = std::make_shared<RtdeClient>();
     rtde_cli->connect(server_host, 30010);
-    rtde_cli->login("aubo", "123456");
+    rtde_cli->login("admin", "123456");
     rtde_cli->setEventHandler([this](int event)
                               { RCLCPP_INFO(this->get_logger(), "aubo rtde event id: %d", event); });
     int status_topic = rtde_cli->setTopic(false,
