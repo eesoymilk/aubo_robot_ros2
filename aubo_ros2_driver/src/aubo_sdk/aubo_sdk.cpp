@@ -38,7 +38,7 @@ bool AuboRos2Driver::connectArmController()
 
   // login
   rpc_cli = std::make_shared<RpcClient>();
-  rpc_cli->setRequestTimeout(1000);
+  rpc_cli->setRequestTimeout(5000);
 
   int max_link_times = 5;
   int count = 0;
